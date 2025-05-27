@@ -20,6 +20,8 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
     export LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
 
 %post
+    mkdir -p /tmp /var/tmp
+    
     # Install Python + Pip
     apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -29,10 +31,11 @@ From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
     # Set permissions for copied files
     echo "Setting permissions..."
     chmod -R 755 /predictor_container_deepbiccn2
-
-    pip3 install "tensorflow[and-cuda]==2.18.0" --no-cache-dir
-    pip3 install crested --no-cache-dir
-    pip3 install "modisco-lite>=2.2.1" --no-cache-dir
+    
+    pip3 install --no-cache-dir -U \
+        crested==1.4.1 \
+        "tensorflow[and-cuda]==2.18.0" \
+        "modisco-lite>=2.2.1"
 
 %runscript
     echo "Container is starting with CREsted GPU environment activated"
