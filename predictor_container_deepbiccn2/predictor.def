@@ -2,9 +2,15 @@ Bootstrap: docker
 From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
 
 %files
-    ./script_and_utils /predictor_container_deepbiccn2/script_and_utils
-    ./model /predictor_container_deepbiccn2/model
+    ./script_and_utils /predictor_container_deepbiccn2/script_and_utils/
+    ./model /predictor_container_deepbiccn2/model/
 
+%setup
+    echo "Creating predictor directory structure in image…"
+    mkdir -p "${SINGULARITY_ROOTFS}/predictor_container_deepbiccn2"
+    mkdir -p "${SINGULARITY_ROOTFS}/predictor_container_deepbiccn2/script_and_utils"
+    mkdir -p "${SINGULARITY_ROOTFS}/predictor_container_deepbiccn2/model"
+    
 %environment
     export NUMBA_CACHE_DIR=/tmp/NUMBA_CACHE_DIR/
     export MPLCONFIGDIR=/tmp/MPLCONFIGDIR/
