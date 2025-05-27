@@ -1,0 +1,57 @@
+Bootstrap: docker
+From: nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
+
+%files
+    ./script_and_utils /predictor_container_deepbiccn2/script_and_utils
+    ./model /predictor_container_deepbiccn2/model
+
+%environment
+    export NUMBA_CACHE_DIR=/tmp/NUMBA_CACHE_DIR/
+    export MPLCONFIGDIR=/tmp/MPLCONFIGDIR/
+    export APPTAINER_NO_MOUNT="home,tmp,proc,sys,dev"
+    export LC_ALL=C
+    export PATH="/opt/conda/bin:$PATH"
+    export LD_LIBRARY_PATH="/opt/conda/lib:$LD_LIBRARY_PATH"
+
+%post
+    # Install Python + Pip
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+    
+    # Set permissions for copied files
+    echo "Setting permissions..."
+    chmod -R 755 /predictor_container_deepbiccn2
+
+    pip3 install "tensorflow[and-cuda]==2.18.0" --no-cache-dir
+    pip3 install crested --no-cache-dir
+    pip3 install "modisco-lite>=2.2.1" --no-cache-dir
+
+%runscript
+    echo "Container is starting with CREsted GPU environment activated"
+    exec python3 /predictor_container_deepbiccn2/script_and_utils/crested_predictor_api.py "$@"
+
+%startscript
+    exec python3 /predictor_container_deepbiccn2/predictor_API_clean_apptainer.py "$@"
+
+%test
+    python3 -c "import crested" && echo 'crested imported successfully'
+
+%labels
+    CREsted DeepBICCN2 model
+    Date 2025-04-01
+
+%help
+    Documentation:
+    https://crested.readthedocs.io/en/stable/models/BICCN/deepbiccn2.html
+    
+    Build the container (SIF)
+    ```
+    apptainer build deepbiccn2_predictor.sif predictor.def
+    ```
+
+    Run the container
+    ```
+    apptainer run --nv deepbiccn2_predictor.sif HOST PORT
+    ```
