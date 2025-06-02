@@ -1,0 +1,11 @@
+name: crested-gpu
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - crested==1.4.1
+      - modisco-lite>=2.2.1
